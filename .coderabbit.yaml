@@ -1,0 +1,58 @@
+reviews:
+  auto_review: true
+  # Disable the status message in PR checks
+  review_status: false
+
+  # Apply auto-reviews on all branches (default + any others)
+  base_branches:
+    - "*"
+
+  # General review preferences
+  path_includes:
+    - "**/*"
+  path_excludes:
+    - "node_modules/**"
+    - ".next/**"
+    - "dist/**"
+    - "coverage/**"
+    - "*.min.js"
+
+  # Make reviews concise but actionable
+  summary:
+    enabled: true
+    show_pr_metrics: true
+
+  suggestions:
+    enabled: true
+    limit: 50
+
+checks:
+  enable_lint: true
+  enable_format: true
+  enable_security: true
+  enable_tests: true
+
+  # Optional per-category configuration (kept minimal & generic)
+  lint:
+    enabled: true
+  format:
+    enabled: true
+  security:
+    enabled: true
+  tests:
+    enabled: true
+
+# Tooling configuration (generic & safe defaults)
+tools:
+  eslint:
+    enabled: true
+  prettier:
+    enabled: true
+  stylelint:
+    enabled: true
+  semgrep:
+    enabled: true
+  gitleaks:
+    enabled: true
+  bandit:
+    enabled: true
