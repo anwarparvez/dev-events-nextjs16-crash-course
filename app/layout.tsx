@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased`}
+        className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased bg-gradient-to-b from-[#0d161a] via-[#182830] to-[#0d161a] text-white`}
       >
 
       <NavBar/>

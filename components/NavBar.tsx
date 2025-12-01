@@ -6,7 +6,7 @@ const NavBar = () => {
     return (
         <header>
             
-            <nav>
+            <nav className="text-white">
                 <Link href='/' className="logo">
                     <Image src="/icons/logo.png" alt="logo" width={24} height={24}/>
 
