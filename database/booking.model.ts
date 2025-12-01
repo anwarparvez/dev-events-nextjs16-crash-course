@@ -52,29 +52,30 @@ BookingSchema.index({ eventId: 1 });
  * Pre-save hook to:
  * - validate that the referenced event exists
  * - ensure email is properly formatted
+ *
+ * Using the async promise-based signature (no `next` callback)
+ * keeps the types simple and lets thrown errors fail the save.
  */
-BookingSchema.pre<BookingDocument>('save', async function preSave(next) {
-  try {
-    const booking = this;
+BookingSchema.pre<BookingDocument>('save', async function preSave() {
+  const booking = this;
 
-    // Email format validation.
-    if (typeof booking.email !== 'string' || booking.email.trim().length === 0) {
-      throw new Error('Booking email is required and must be a non-empty string');
-    }
+  // Email format validation.
+  const email = booking.email.trim();
+  if (email.length === 0) {
+    throw new Error('Booking email is required and must be a non-empty string');
+  }
 
-    if (!EMAIL_REGEX.test(booking.email)) {
-      throw new Error('Booking email must be a valid email address');
-    }
+  if (!EMAIL_REGEX.test(email)) {
+    throw new Error('Booking email must be a valid email address');
+  }
 
-    // Ensure the referenced event exists before saving the booking.
-    const eventExists = await Event.exists({ _id: booking.eventId }).lean().exec();
-    if (!eventExists) {
-      throw new Error('Cannot create booking: referenced event does not exist');
-    }
+  // Persist the normalized email back to the document.
+  booking.email = email;
 
-    next();
-  } catch (error) {
-    next(error as Error);
+  // Ensure the referenced event exists before saving the booking.
+  const eventExists = await Event.exists({ _id: booking.eventId }).lean().exec();
+  if (!eventExists) {
+    throw new Error('Cannot create booking: referenced event does not exist');
   }
 });
 

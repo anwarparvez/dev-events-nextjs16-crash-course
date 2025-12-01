@@ -103,62 +103,59 @@ EventSchema.index({ slug: 1 }, { unique: true });
  * - ensure required string and array fields are non-empty
  * - generate or regenerate slug when title changes
  * - normalize date and time formats
+ *
+ * Using the promise-based middleware signature (no `next` callback)
+ * avoids TypeScript overload issues with Mongoose typings.
  */
-EventSchema.pre<EventDocument>('save', function preSave(next) {
-  try {
-    const event = this;
+EventSchema.pre<EventDocument>('save', function preSave() {
+  const event = this;
 
-    // Validate required string fields are present and non-empty.
-    const requiredStringFields: (keyof EventAttributes)[] = [
-      'title',
-      'description',
-      'overview',
-      'image',
-      'venue',
-      'location',
-      'date',
-      'time',
-      'mode',
-      'audience',
-      'organizer',
-    ];
+  // Validate required string fields are present and non-empty.
+  const requiredStringFields: (keyof EventAttributes)[] = [
+    'title',
+    'description',
+    'overview',
+    'image',
+    'venue',
+    'location',
+    'date',
+    'time',
+    'mode',
+    'audience',
+    'organizer',
+  ];
 
-    for (const field of requiredStringFields) {
-      const value = event[field];
-      if (typeof value !== 'string' || value.trim().length === 0) {
-        throw new Error(`Event ${field} is required and must be a non-empty string`);
-      }
+  for (const field of requiredStringFields) {
+    const value = event[field];
+    if (typeof value !== 'string' || value.trim().length === 0) {
+      throw new Error(`Event ${field} is required and must be a non-empty string`);
     }
+  }
 
-    // Validate required array fields.
-    const requiredArrayFields: (keyof EventAttributes)[] = ['agenda', 'tags'];
-    for (const field of requiredArrayFields) {
-      const value = event[field];
-      if (!Array.isArray(value) || value.length === 0) {
-        throw new Error(`Event ${field} is required and must be a non-empty array`);
-      }
-      if (!value.every((item) => typeof item === 'string' && item.trim().length > 0)) {
-        throw new Error(`Event ${field} must contain only non-empty strings`);
-      }
+  // Validate required array fields.
+  const requiredArrayFields: (keyof EventAttributes)[] = ['agenda', 'tags'];
+  for (const field of requiredArrayFields) {
+    const value = event[field];
+    if (!Array.isArray(value) || value.length === 0) {
+      throw new Error(`Event ${field} is required and must be a non-empty array`);
     }
-
-    // Generate slug only when title is modified.
-    if (event.isModified('title')) {
-      event.slug = slugify(event.title);
+    if (!value.every((item) => typeof item === 'string' && item.trim().length > 0)) {
+      throw new Error(`Event ${field} must contain only non-empty strings`);
     }
+  }
 
-    // Normalize date and time formats.
-    if (event.isModified('date')) {
-      event.date = normalizeDate(event.date);
-    }
+  // Generate slug only when title is modified.
+  if (event.isModified('title')) {
+    event.slug = slugify(event.title);
+  }
 
-    if (event.isModified('time')) {
-      event.time = normalizeTime(event.time);
-    }
+  // Normalize date and time formats.
+  if (event.isModified('date')) {
+    event.date = normalizeDate(event.date);
+  }
 
-    next();
-  } catch (error) {
-    next(error as Error);
+  if (event.isModified('time')) {
+    event.time = normalizeTime(event.time);
   }
 });
 
